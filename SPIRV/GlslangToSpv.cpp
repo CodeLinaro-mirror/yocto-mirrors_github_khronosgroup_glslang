@@ -3421,11 +3421,9 @@ void TGlslangToSpvTraverser::createAbortEXT(const glslang::TIntermSequence &glsl
     //    0 means the member is not a matrix.
     std::vector<int> structMemberMatrixStrides;
     structMemberMatrixStrides.push_back(0);
-    // Standard rules pad each member out to its base alignment. A shader that has asked for
-    // scalar block layout gets the compact form instead, which is what the validator will
-    // check it against; everything else keeps the layout that validates unconditionally.
-    const glslang::TLayoutPacking msgPacking =
-        glslangIntermediate->usingScalarBlockLayout() ? glslang::ElpScalar : glslang::ElpStd430;
+    // The message is always packed with scalar rules, so that a given argument list produces
+    // one layout regardless of how the rest of the shader is laid out. A consumer parsing the
+    // message then only ever has to know the one set of rules.
     for (unsigned int i = 1; i < glslangOperands.size(); i++) {
         spv::Builder::AccessChain save = builder.getAccessChain();
         builder.clearAccessChain();
@@ -3435,15 +3433,25 @@ void TGlslangToSpvTraverser::createAbortEXT(const glslang::TIntermSequence &glsl
         int memberSize = 0;
         int matrixStride = 0;
         int alignment =
-            glslangIntermediate->getMemberAlignment(argType, memberSize, matrixStride, msgPacking, false);
+            glslangIntermediate->getMemberAlignment(argType, memberSize, matrixStride, glslang::ElpScalar, false);
         glslang::RoundToPow2(structMemberOffsets.back(), alignment);
         structMemberOffsets.push_back(structMemberOffsets.back() + memberSize);
-        structMemberMatrixStrides.push_back(argType.isMatrix() ? matrixStride : 0);
+        // getMemberAlignment's stride is the array stride for an array argument, so ask for
+        // the matrix stride separately - an array of matrices needs the stride of one matrix.
+        structMemberMatrixStrides.push_back(
+            argType.isMatrix() ? getMatrixStride(argType, glslang::ElpScalar, glslang::ElmColumnMajor) : 0);
         glslangOperands[i]->traverse(this);
         structMemberData.push_back(accessChainLoad(argType));
-        spv::Id reservedOpType = builder.getTypeId(structMemberData.back());
-        structMemberType.push_back(reservedOpType);
-        structLoadMemberType.push_back(reservedOpType);
+        // Take the explicitly laid out form of the type, not the type of the loaded value.
+        // An aggregate argument carries layout inside itself - ArrayStride on an array, Offset
+        // and MatrixStride on the members of a nested struct - and only the laid out type has
+        // those. createCompositeConstruct below copies the loaded value into it.
+        glslang::TQualifier memberQualifier = argType.getQualifier();
+        memberQualifier.layoutPacking = glslang::ElpScalar;
+        if (memberQualifier.layoutMatrix == glslang::ElmNone)
+            memberQualifier.layoutMatrix = glslang::ElmColumnMajor;
+        structMemberType.push_back(convertGlslangToSpvType(argType, glslang::ElpScalar, memberQualifier, false));
+        structLoadMemberType.push_back(structMemberType.back());
 
         builder.setAccessChain(save);
     }
@@ -3460,7 +3468,9 @@ void TGlslangToSpvTraverser::createAbortEXT(const glslang::TIntermSequence &glsl
                                         structMemberMatrixStrides[i]);
         }
     }
-    auto messageVar = builder.createCompositeConstruct(structLoadType, structMemberData);
+    // Use the traverser's overload: where a loaded value's type differs from the laid out
+    // member type it copies the value across rather than failing to match.
+    auto messageVar = createCompositeConstruct(structLoadType, structMemberData);
     builder.makeStatementTerminator(spv::Op::OpAbortKHR, {structLoadType, messageVar}, "post-abort");
 }
 

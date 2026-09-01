@@ -990,6 +990,15 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.shader.abort.args.uvec.comp",
         "spv.shader.abort.args.vec_mixed.comp",
         "spv.shader.abort.args.scalar_layout.comp",
+        "spv.shader.abort.type.int8.comp",
+        "spv.shader.abort.type.int16.comp",
+        "spv.shader.abort.type.int64.comp",
+        "spv.shader.abort.type.float16.comp",
+        "spv.shader.abort.type.float64.comp",
+        "spv.shader.abort.type.matrix.comp",
+        "spv.shader.abort.type.array.comp",
+        "spv.shader.abort.type.struct.comp",
+        "spv.shader.abort.type.buffer_reference.comp",
     })),
     FileNameAsCustomTestSuffix
 );
