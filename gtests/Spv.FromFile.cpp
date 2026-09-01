@@ -973,6 +973,22 @@ INSTANTIATE_TEST_SUITE_P(
         
         // SPV_KHR_abort
         "spv.shader.abort.comp",
+        "spv.shader.abort.matrix_param.comp",
+        "spv.shader.abort.args.none.comp",
+        "spv.shader.abort.args.int.comp",
+        "spv.shader.abort.args.uint.comp",
+        "spv.shader.abort.args.float.comp",
+        "spv.shader.abort.args.int2.comp",
+        "spv.shader.abort.args.mixed3.comp",
+        "spv.shader.abort.args.mixed8.comp",
+        "spv.shader.abort.args.excess.comp",
+        "spv.shader.abort.args.constants.comp",
+        "spv.shader.abort.args.vec2.comp",
+        "spv.shader.abort.args.vec3.comp",
+        "spv.shader.abort.args.vec4.comp",
+        "spv.shader.abort.args.ivec.comp",
+        "spv.shader.abort.args.uvec.comp",
+        "spv.shader.abort.args.vec_mixed.comp",
     })),
     FileNameAsCustomTestSuffix
 );
