@@ -3421,16 +3421,21 @@ void TGlslangToSpvTraverser::createAbortEXT(const glslang::TIntermSequence &glsl
     //    0 means the member is not a matrix.
     std::vector<int> structMemberMatrixStrides;
     structMemberMatrixStrides.push_back(0);
+    // Standard rules pad each member out to its base alignment. A shader that has asked for
+    // scalar block layout gets the compact form instead, which is what the validator will
+    // check it against; everything else keeps the layout that validates unconditionally.
+    const glslang::TLayoutPacking msgPacking =
+        glslangIntermediate->usingScalarBlockLayout() ? glslang::ElpScalar : glslang::ElpStd430;
     for (unsigned int i = 1; i < glslangOperands.size(); i++) {
         spv::Builder::AccessChain save = builder.getAccessChain();
         builder.clearAccessChain();
-        // Lay the member out with standard rules: align this member's offset, then advance
-        // past it to get the (not yet aligned) offset of the next one.
+        // Align this member's offset, then advance past it to get the (not yet aligned)
+        // offset of the next one.
         const glslang::TType& argType = glslangOperands[i]->getAsTyped()->getType();
         int memberSize = 0;
         int matrixStride = 0;
         int alignment =
-            glslangIntermediate->getMemberAlignment(argType, memberSize, matrixStride, glslang::ElpStd430, false);
+            glslangIntermediate->getMemberAlignment(argType, memberSize, matrixStride, msgPacking, false);
         glslang::RoundToPow2(structMemberOffsets.back(), alignment);
         structMemberOffsets.push_back(structMemberOffsets.back() + memberSize);
         structMemberMatrixStrides.push_back(argType.isMatrix() ? matrixStride : 0);

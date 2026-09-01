@@ -989,6 +989,7 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.shader.abort.args.ivec.comp",
         "spv.shader.abort.args.uvec.comp",
         "spv.shader.abort.args.vec_mixed.comp",
+        "spv.shader.abort.args.scalar_layout.comp",
     })),
     FileNameAsCustomTestSuffix
 );
