@@ -4114,6 +4114,16 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
         break;
     }
 
+    case EOpDebugPrintf:
+    {
+        // GL_EXT_debug_printf requires the format to be a string literal, not just
+        // an expression of string type: isLiteral() is false for e.g. ("fmt").
+        const TIntermConstantUnion* format = arg0 ? arg0->getAsConstantUnion() : nullptr;
+        if (format == nullptr || format->getBasicType() != EbtString || ! format->isLiteral())
+            error(loc, "first argument must be a string literal", fnCandidate.getName().c_str(), "");
+        break;
+    }
+
     default:
         break;
     }
