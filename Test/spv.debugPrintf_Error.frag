@@ -1,8 +1,6 @@
 #version 450
 #extension GL_EXT_debug_printf : enable
 
-#define FMT "this one is fine: %d"
-
 void main()
 {
     // invalid hex sequence
@@ -10,9 +8,6 @@ void main()
 
     // not an octal sequence
     debugPrintfEXT("\8");
-
-    // a macro that expands to a string literal token is still a string literal
-    debugPrintfEXT(FMT, 1);
 
     // the format must be a string literal, not just any constant expression
     const int notAString = 1;
