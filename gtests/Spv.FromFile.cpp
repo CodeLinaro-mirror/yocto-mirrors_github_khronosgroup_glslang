@@ -983,6 +983,7 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.shader.abort.args.mixed8.comp",
         "spv.shader.abort.args.excess.comp",
         "spv.shader.abort.args.constants.comp",
+        "spv.shader.abort.args.macro.comp",
         "spv.shader.abort.args.vec2.comp",
         "spv.shader.abort.args.vec3.comp",
         "spv.shader.abort.args.vec4.comp",
@@ -999,6 +1000,7 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.shader.abort.type.array.comp",
         "spv.shader.abort.type.struct.comp",
         "spv.shader.abort.type.buffer_reference.comp",
+        "spv.shader.abort.format_Error.comp",
     })),
     FileNameAsCustomTestSuffix
 );

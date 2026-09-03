@@ -4128,6 +4128,16 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
         break;
     }
 
+    case EOpAbortEXT:
+        // GL_EXT_abort allows abortEXT() with no arguments at all. Otherwise the message
+        // must be a string literal, not merely an expression of string type: isLiteral()
+        // is false for e.g. ("msg"). createAbortEXT() assumes this.
+        if (arg0 != nullptr) {
+            const TIntermConstantUnion* message = arg0->getAsConstantUnion();
+            if (message == nullptr || message->getBasicType() != EbtString || ! message->isLiteral())
+                error(loc, "first argument must be a string literal", fnCandidate.getName().c_str(), "");
+        }
+        break;
     case EOpDebugPrintf:
     {
         // GL_EXT_debug_printf requires the format to be a string literal, not just
