@@ -506,6 +506,8 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.loopsArtificial.frag",
         "spv.matFun.vert",
         "spv.matrix.frag",
+        "spv.matrix.float16.frag",
+        "spv.matrix.float64.frag",
         "spv.matrix2.frag",
         "spv.maximalReconvergence.vert",
         "spv.memoryQualifier.frag",

@@ -4439,8 +4439,17 @@ Id Builder::createMatrixConstructor(Decoration precision, const std::vector<Id>&
 
     // initialize the array to the identity matrix
     Id ids[maxMatrixSize][maxMatrixSize];
-    Id  one = (bitCount == 64 ? makeDoubleConstant(1.0) : makeFloatConstant(1.0));
-    Id zero = (bitCount == 64 ? makeDoubleConstant(0.0) : makeFloatConstant(0.0));
+    Id one, zero;
+    if (bitCount == 64) {
+        one = makeDoubleConstant(1.0);
+        zero = makeDoubleConstant(0.0);
+    } else if (bitCount == 16) {
+        one = makeFloat16Constant(1.0);
+        zero = makeFloat16Constant(0.0);
+    } else {
+        one = makeFloatConstant(1.0);
+        zero = makeFloatConstant(0.0);
+    }
     for (int col = 0; col < 4; ++col) {
         for (int row = 0; row < 4; ++row) {
             if (col == row)
